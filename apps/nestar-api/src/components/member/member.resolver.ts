@@ -7,40 +7,37 @@ import { Member } from '../../libs/dto/member/member';
 @Resolver()
 export class MemberResolver {
 	constructor(private readonly memberService: MemberService) {}
-
 	@Mutation(() => Member)
-	@UsePipes(ValidationPipe)
+	@UsePipes(ValidationPipe) // DTO
 	public async signup(@Args('input') input: MemberInput): Promise<Member> {
 		try {
 			console.log('Mutation: signup');
 			console.log('input:', input);
 			return this.memberService.signup(input);
 		} catch (err) {
-			console.log('Error, signup:', err);
+			console.log('Error, signup', err);
 			throw new InternalServerErrorException(err);
 		}
 	}
-
 	@Mutation(() => Member)
-	public async login(@Args('input') input: LoginInput): Promise<string> {
+	@UsePipes(ValidationPipe) // DTO
+	public async login(@Args('input') input: LoginInput): Promise<Member> {
 		try {
 			console.log('Mutation: login');
-			return this.memberService.login();
+			return this.memberService.login(input);
 		} catch (err) {
-			console.log('Error, login:', err);
+			console.log('Error, signup', err);
 			throw new InternalServerErrorException(err);
 		}
 	}
-
 	@Mutation(() => String)
 	public async updateMember(): Promise<string> {
 		console.log('Mutation: updateMember');
-		return 'updateMember executed!';
+		return this.memberService.updateMember();
 	}
-
 	@Query(() => String)
 	public async getMember(): Promise<string> {
 		console.log('Query: getMember');
-		return 'getMember executed!';
+		return this.memberService.getMember();
 	}
 }
