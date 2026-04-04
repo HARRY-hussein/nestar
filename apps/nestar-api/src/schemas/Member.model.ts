@@ -21,9 +21,9 @@ const MemberSchema = new Schema(
 			default: MemberAuthType.PHONE,
 		},
 
-		memberPhone: {
+		memberPhone: { // number deb belgilasak-u, raqam 0 dan boshlansa 0 tushib qoladi,
 			type: String,
-			index: { unique: true, sparse: true },
+			index: { unique: true, sparse: true }, // unique: Har bir foydalanuvchining telefoni takrorlanmasin;  sparse: telefon raqami bo'sh (null) bo'lgan foydalanuvchilarga unique qoidasini qo'llamaydi, bo'sh bo'lsa ham xato bermaydi
 			required: true,
 		},
 
@@ -35,7 +35,7 @@ const MemberSchema = new Schema(
 
 		memberPassword: {
 			type: String,
-			select: false,
+			select: false, // privacy: Bazadan member ma'lumotlari so'ralganda parol avtomatik kelmaydi, maxsus so'ralmasa ko'rinmaydi:
 			required: true,
 		},
 
@@ -45,7 +45,7 @@ const MemberSchema = new Schema(
 
 		memberImage: {
 			type: String,
-			default: '',
+			default: '', // Foydalanuvchi ro'yxatdan o'tganda rasm yuklamagan bo'lishi mumkin. default: '' — rasm yo'q bo'lsa bo'sh string saqlanadi, null yoki undefined o'rniga.
 		},
 
 		memberAddress: {

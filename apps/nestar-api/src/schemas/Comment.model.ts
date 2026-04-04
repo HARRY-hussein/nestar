@@ -9,7 +9,7 @@ const CommentSchema = new Schema(
 			default: CommentStatus.ACTIVE,
 		},
 
-		commentGroup: {
+		commentGroup: { // group qaysi turdagi narsa ekanini
 			type: String,
 			enum: CommentGroup,
 			required: true,
@@ -20,7 +20,8 @@ const CommentSchema = new Schema(
 			required: true,
 		},
 
-		commentRefId: {
+		commentRefId: { // aynan qaysi narsa ekanini ko'rsatadi.
+			// Comment nimaga yozilganini bilish uchun kerak — uy, restoran, yoki boshqa narsaning _id si saqlanadi.
 			type: Schema.Types.ObjectId,
 			required: true,
 		},

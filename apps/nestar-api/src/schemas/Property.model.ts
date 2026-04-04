@@ -6,13 +6,13 @@ const PropertySchema = new Schema(
 		propertyType: {
 			type: String,
 			enum: PropertyType,
-			required: true,
+			required: true, // user bu datani aniq kiritsin
 		},
 
 		propertyStatus: {
 			type: String,
 			enum: PropertyStatus,
-			default: PropertyStatus.ACTIVE,
+			default: PropertyStatus.ACTIVE, // property yaratganda unga tegishli statusini user belgilamasa avtomatik ACTIVE qiladi
 		},
 
 		propertyLocation: {
@@ -72,7 +72,7 @@ const PropertySchema = new Schema(
 		},
 
 		propertyImages: {
-			type: [String],
+			type: [String], // Bitta uyning bir nechta rasmi bo'ladi, shuning uchun array. Har bir rasm URL manzili bo'ladi:
 			required: true,
 		},
 
@@ -80,9 +80,9 @@ const PropertySchema = new Schema(
 			type: String,
 		},
 
-		propertyBarter: {
-			type: Boolean,
-			default: false,
+		propertyBarter: { 
+			type: Boolean, // Uy ayirboshlash (barter) uchun mo'ljallanganmi yoki yo'qmi — faqat ha/yo'q javob kerak
+			default: false, // Yangi uy qo'shilganda barter yo'q deb hisoblanadi, foydalanuvchi kerak bo'lsa o'zi true qiladi.
 		},
 
 		propertyRent: {
@@ -90,7 +90,7 @@ const PropertySchema = new Schema(
 			default: false,
 		},
 
-		memberId: {
+		memberId: { // propertylarni kim yaratganini belgilaydi
 			type: Schema.Types.ObjectId,
 			required: true,
 			ref: 'Member',
@@ -111,6 +111,6 @@ const PropertySchema = new Schema(
 	{ timestamps: true, collection: 'properties' },
 );
 
-PropertySchema.index({ propertyType: 1, propertyLocation: 1, propertyTitle: 1, propertyPrice: 1 }, { unique: true });
+PropertySchema.index({ propertyType: 1, propertyLocation: 1, propertyTitle: 1, propertyPrice: 1 }, { unique: true }); // Agar databaseda allaqachon shu 4 tasi bir xil uy bo'lsa, MongoDB ikkinchisini saqlamaydi, xato beradi.
 
 export default PropertySchema;

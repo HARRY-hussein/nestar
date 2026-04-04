@@ -1,26 +1,27 @@
 {
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "resolvePackageJsonExports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "declaration": true,
-    "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "ES2023",
-    "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true,
-    "skipLibCheck": true,
-    "strictNullChecks": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false,
-    "paths": {}
-  }
+		"module": "nodenext", // Node.js ning yangi ESM/CJS modul tizimini ishlatadi
+		"moduleResolution": "nodenext", // Modullarni Node.js usulida qidiradi (.js kengaytmasi majburiy)
+		"resolvePackageJsonExports": true, // package.json dagi exports maydonini hisobga oladi, to'g'ri paketni topadi
+		"esModuleInterop": true, // CommonJS modullarni import X from '...' ko'rinishida import qilish imkoniyati
+		"isolatedModules": true,
+		"declaration": true, // Har bir .ts fayl uchun .d.ts type definition fayli yaratadi (kutubxona sifatida chiqarish uchun)
+		"removeComments": true, // Compile qilingan .js fayllarda commentlar o'chiriladi
+		"emitDecoratorMetadata": true, // =>
+		"experimentalDecorators": true, // => @Controller(), @Injectable() kabi dekoratorlarni ishlatish uchun (NestJS belgisi)
+		"allowSyntheticDefaultImports": true, // default export bo'lmagan modullardan ham import X from qilish imkonini beradi (esModuleInterop bilan birgalikda ishlaydi)
+		"target": "ES2023", // Zamonaviy JS sintaksisiga (ES2023) compile qiladi
+		"sourceMap": true, // Har bir .js fayl uchun .js.map fayli yaratiladi (debugging uchun)
+		"outDir": "./dist", //  Compile bo'lgan fayllar dist papkasiga chiqadi
+		"baseUrl": "./", // import qilganda yo'lni qayerdan hisoblashni belgilaydi: 
+    // baseUrl bo'lmasdan (noqulay): "import { UserService } from '../../../user/user.service"; ./ bo'lganda (qulay): import { UserService } from 'user/user.service')
+		"incremental": true, // Oldingi build ma'lumotlarini .tsbuildinfo faylida saqlaydi, faqat o'zgargan fayllarni qayta compile qiladi, build tezlashadi
+		"skipLibCheck": true, // node_modules ichidagi type xatolarini e'tiborsiz qoldiradi va node_modules ichidagi .d.ts fayllarini tekshirmaydi, build tezlashadi
+		"strictNullChecks": true, // null/undefined xatolarini ushlaydi
+		"forceConsistentCasingInFileNames": true, // Fayl nomlarida katta/kichik harf izchilligini ta'minlaydi
+		"noImplicitAny": false, // Type ko'rsatilmagan o'zgaruvchilarga yashirin any berishga ruxsat beradi
+		"strictBindCallApply": false, // .bind(), .call(), .apply() metodlarining argument turlarini tekshirmaydi
+		"noFallthroughCasesInSwitch": false, // switch blokida break yo'q case larni xato deb hisoblamaydi
+		"paths": {} // Hozircha bo'sh, lekin alias yo'llar (@app/... kabi) qo'shish uchun joy
+	}
 }
