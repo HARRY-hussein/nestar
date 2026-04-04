@@ -6,7 +6,7 @@ import { Member } from '../../libs/dto/member/member';
 
 @Resolver()
 export class MemberResolver {
-	constructor(private readonly memberService: MemberService) {}
+	constructor(private readonly memberService: MemberService) {} // DI
 	@Mutation(() => Member)
 	@UsePipes(ValidationPipe) // DTO
 	public async signup(@Args('input') input: MemberInput): Promise<Member> {

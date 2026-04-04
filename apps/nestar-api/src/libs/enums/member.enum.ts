@@ -10,7 +10,7 @@ registerEnumType(MemberType, {
 });
 
 export enum MemberStatus {
-	ACITVE = 'ACITVE',
+	ACTIVE = 'ACTIVE',
 	BLOCK = 'BLOCK',
 	DELETE = 'DELETE',
 }
