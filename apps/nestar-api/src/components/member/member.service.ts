@@ -24,7 +24,6 @@ export class MemberService {
 	}
 
 	public async login(input: LoginInput): Promise<Member> {
-        // console.log("ddddd keldi");  
         
 		const { memberNick, memberPassword } = input;
 		const response: Member = await this.memberModel
