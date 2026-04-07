@@ -5,9 +5,9 @@ import { LoggingInterceptor } from './libs/interceptor/Logging.interceptor';
 
 // Global Integration
 async function bootstrap() { // define: baza ulanishi, port tinglashini kutish kerak
-  const app = await NestFactory.create(AppModule); // NestJS ilovasini yaratadi. AppModuleni beramiz: "shu moduldan boshlab ilovani qur" Express + NestJS
-  app.useGlobalPipes(new ValidationPipe()); // Pipe Validation Global tarzda integratsiyasi
-  app.useGlobalInterceptors(new LoggingInterceptor()); // log malumotlari 
+  const app = await NestFactory.create(AppModule); // NestJS ilovasini yaratadi va asosiy ingredient. AppModuleni beramiz: "shu moduldan boshlab ilovani qur" Express + NestJS
+  app.useGlobalPipes(new ValidationPipe()); // Pipe Validation Global integration: ValidationPipe instance argument sifatida paste boldi
+  app.useGlobalInterceptors(new LoggingInterceptor()); // log data Global integration
   await app.listen(process.env.PORT_API ?? 3000); // envdagi portda sorovlarni tinglasin, port belgilanmagan bolsa 3000.
 }
 bootstrap(); // call
