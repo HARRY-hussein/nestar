@@ -16,6 +16,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
 		if (requestType === 'http') { // Logging interceptor mantig'ini kirib kelayotgan req. turiga qarab shakllantirdik
 			/* Develop if needed! hozircha LoggingInterceptor GraphQL serveri un */
+			return next.handle();
 		} else if (requestType === 'graphql') {
 			/* [1] Print Incoming Request */
 			const gqlContext = GqlExecutionContext.create(context); // kirib kelayotgan req. contexti
