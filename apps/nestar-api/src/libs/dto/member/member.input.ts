@@ -2,9 +2,9 @@ import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
 import { MemberAuthType, MemberType } from '../../enums/member.enum';
 
-@InputType()
-export class MemberInput {
-	@IsNotEmpty()
+@InputType() // Frontenddan kirib kelayotgan data
+export class MemberInput { // signup bolayotganda
+	@IsNotEmpty() // bo'sh bo'lmasligi/ kiritilishi kk bolgan data
 	@Length(3, 12)
 	@Field(() => String)
 	memberNick: string;
@@ -18,8 +18,8 @@ export class MemberInput {
 	@Field(() => String)
 	memberPhone: string;
 
-	@IsOptional()
-	@Field(() => MemberType, { nullable: true })
+	@IsOptional() // bolmasa ham bolaveradi
+	@Field(() => MemberType, { nullable: true }) // aynan MemberTypedan malumotlarni ololadi
 	memberType?: MemberType;
 
 	@IsOptional()
@@ -28,7 +28,7 @@ export class MemberInput {
 }
 
 @InputType()
-export class LoginInput {
+export class LoginInput { // login bolayotganda
 	@IsNotEmpty()
 	@Length(3, 12)
 	@Field(() => String)

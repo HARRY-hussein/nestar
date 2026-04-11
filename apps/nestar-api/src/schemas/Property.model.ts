@@ -93,7 +93,7 @@ const PropertySchema = new Schema(
 		memberId: { // propertylarni kim yaratganini belgilaydi
 			type: Schema.Types.ObjectId,
 			required: true,
-			ref: 'Member',
+			ref: 'Member', // osha malumotlarni Member datadan olasan
 		},
 
 		soldAt: {
@@ -111,6 +111,6 @@ const PropertySchema = new Schema(
 	{ timestamps: true, collection: 'properties' },
 );
 
-PropertySchema.index({ propertyType: 1, propertyLocation: 1, propertyTitle: 1, propertyPrice: 1 }, { unique: true }); // Agar databaseda allaqachon shu 4 tasi bir xil uy bo'lsa, MongoDB ikkinchisini saqlamaydi, xato beradi.
+PropertySchema.index({ propertyType: 1, propertyLocation: 1, propertyTitle: 1, propertyPrice: 1 }, { unique: true }); // COMPOUND INDEX: Agar databaseda allaqachon shu 4 tasi bir xil uy bo'lsa, MongoDB ikkinchisini saqlamaydi, xato beradi.
 
 export default PropertySchema;

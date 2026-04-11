@@ -1,11 +1,12 @@
 import { BadRequestException, ConsoleLogger, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { Member } from '../../libs/dto/member/member';
 import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
 import { MemberStatus } from '../../libs/enums/member.enum';
 import { Message } from '../../libs/enums/common.enum';
 import { AuthService } from '../auth/auth.service';
+import { MemberUpdate } from '../../libs/dto/member/member.update';
 
 @Injectable()
 export class MemberService {
@@ -17,7 +18,8 @@ export class MemberService {
 	public async signup(input: MemberInput): Promise<Member> {
 		// Hash password
 		input.memberPassword = await this.authService.hashPassword(input.memberPassword);
-
+		/* MemberSchema orqali hosil bolayotgan create static methodini errori standard emas, mongoose serverni errori va 
+directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchga wrap qilib ozimizni errorlarimizga ogirib olishimiz kk*/
 		try {
 			const result = await this.memberModel.create(input);
 			// TODO: Authentification via TOKEN
@@ -32,27 +34,44 @@ export class MemberService {
 	}
 
 	public async login(input: LoginInput): Promise<Member> {
-		const { memberNick, memberPassword } = input;
+		const { memberNick, memberPassword } = input; // destruction
 		const response: Member = await this.memberModel
-			.findOne({ memberNick: memberNick })
-			.select('+memberPassword')
+			.findOne({ memberNick: memberNick }) // memberNickni topsin
+			.select('+memberPassword') // databsedan bydefault olib bermasdi, majburlab chaqirib oldik, match qilish un
 			.exec();
 
 		if (!response || response.memberStatus === MemberStatus.DELETE) {
-			throw new InternalServerErrorException(Message.NO_MEMBER_NICK);
+			throw new InternalServerErrorException(Message.NO_MEMBER_NICK); // No member nick dedik, delete emas, sababi ochirib chiqib ketsa ham databasedan o'chmaydi va buni aytib qoymaslik kk
 		} else if (response.memberStatus === MemberStatus.BLOCK) {
 			throw new InternalServerErrorException(Message.BLOCKED_USER);
 		}
 
 		// Comparing passwords
-		const isMatch = await this.authService.comparePasswords(input.memberPassword, response.memberPassword);
+		const isMatch = await this.authService.comparePasswords(
+			memberPassword, // damir2020
+			response.memberPassword,
+		); // hbcoewiubqoiacubd
 		if (!isMatch) throw new InternalServerErrorException(Message.WRONG_PASSWORD);
 		response.accessToken = await this.authService.createToken(response);
 		return response;
 	}
 
-	public async updateMember(): Promise<string> {
-		return 'updateMember executed!';
+	public async updateMember(memberId: ObjectId, input: MemberUpdate): Promise<Member> {
+		const result: Member = await this.memberModel
+			.findOneAndUpdate(
+				{
+					_id: memberId,
+					memberStatus: MemberStatus.ACTIVE,
+				},
+				input,
+				{ new: true },
+			)
+			.exec();
+		if (!result) throw new InternalServerErrorException(Message.UPLOAD_FAILED);
+
+		result.accessToken = await this.authService.createToken(result);
+
+		return result;
 	}
 
 	public async getMember(): Promise<string> {

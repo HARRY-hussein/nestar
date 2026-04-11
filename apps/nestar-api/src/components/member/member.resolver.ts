@@ -9,6 +9,7 @@ import * as mongoose from 'mongoose';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { MemberUpdate } from '../../libs/dto/member/member.update';
 
 @Resolver()
 export class MemberResolver {
@@ -16,24 +17,28 @@ export class MemberResolver {
 	@Mutation(() => Member)
 	// @UsePipes(ValidationPipe) // DTO
 	public async signup(@Args('input') input: MemberInput): Promise<Member> {
+		// Member DTO qiymatdagi data yuborishi kk: kirib kelayotgan Argumentimizni input qilib belgiladik
 		console.log('Mutation: signup');
 		console.log('input:', input);
-		return this.memberService.signup(input);
+		return this.memberService.signup(input); // call
 	}
 	@Mutation(() => Member)
 	public async login(@Args('input') input: LoginInput): Promise<Member> {
+		// LoginInput DTOsi bn belgiladik
 		console.log('Mutation: login');
 		return this.memberService.login(input);
 	}
 
 	// Authenticated: AGENT, ADMIN, USER
 	@UseGuards(AuthGuard)
-	@Mutation(() => String)
-	public async updateMember(@AuthMember('_id') memberId: mongoose.ObjectId): Promise<string> {
+	@Mutation(() => Member)
+	public async updateMember(
+		@Args('input') input: MemberUpdate,
+		@AuthMember('_id') memberId: mongoose.ObjectId,
+	): Promise<Member> {
 		console.log('Mutation: updateMember');
-		console.log(typeof memberId);
-		console.log(memberId);
-		return this.memberService.updateMember();
+		delete input._id;
+		return this.memberService.updateMember(memberId, input);
 	}
 
 	@UseGuards(AuthGuard)
@@ -48,6 +53,7 @@ export class MemberResolver {
 	@UseGuards(RolesGuard)
 	@Query(() => String)
 	public async checkAuthRoles(@AuthMember() authMember: Member): Promise<string> {
+		// Custom[param] decorator
 		console.log('Query: checkAuthRoles');
 		return `Hi ${authMember.memberNick}! You are ${authMember.memberType} (memberId: ${authMember._id})`;
 	}

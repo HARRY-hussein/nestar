@@ -3,7 +3,6 @@ import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import { stringify } from 'querystring';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { log } from 'util';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -20,7 +19,7 @@ export class LoggingInterceptor implements NestInterceptor {
 		} else if (requestType === 'graphql') {
 			/* [1] Print Incoming Request */
 			const gqlContext = GqlExecutionContext.create(context); // kirib kelayotgan req. contexti
-			this.logger.log(`${this.stringify(gqlContext.getContext().req.body)}`, 'REQUEST'); // gql Contextda datalar kelayotgandi, ularni ichidan aynan bodysini oldik [req. body => clientdan yuborilayotgan query sintaksis, FDdan kelayotgan user jonatgan data]
+			this.logger.verbose(`${this.stringify(gqlContext.getContext().req.body)}`, 'REQUEST'); // gql Contextda datalar kelayotgandi, ularni ichidan aynan bodysini oldik [req. body => clientdan yuborilayotgan query sintaksis, FDdan kelayotgan user jonatgan data]
 
 			/* [2] Error Handling via GraphQL */
 
@@ -28,7 +27,7 @@ export class LoggingInterceptor implements NestInterceptor {
 			return next.handle().pipe(
 				tap((context) => { // res.ning ham contexti bor va uni qabul qildik
 					const responseTime = Date.now() - recordTime; // res. berayotgan vaqt - req. ilk kirib kelgan vaqt
-					this.logger.log(`${this.stringify(context)} - ${responseTime}ms \n\n`, 'RESPONSE'); // context -> BD yuborayotgan res. matnini stringify orqali [JSON] ga otkazib qabul qildik
+					this.logger.warn(`${this.stringify(context)} - ${responseTime}ms \n\n`, 'RESPONSE'); // context -> BD yuborayotgan res. matnini stringify orqali [JSON] ga otkazib qabul qildik
 				}),
 			);
 		}

@@ -10,6 +10,6 @@ async function bootstrap() { // define: baza ulanishi, port tinglashini kutish k
   app.useGlobalInterceptors(new LoggingInterceptor()); // log data Global integration
   await app.listen(process.env.PORT_API ?? 3000); // envdagi portda sorovlarni tinglasin, port belgilanmagan bolsa 3000.
 }
-bootstrap(); // call
+bootstrap(); // call NestJS EXPRESS ustiga qurilgan Framework
  
 // loyihaning kirish nuqtasi: NestJS ilovasini yaratadi, portga ulaydi va ishga tushiradi.

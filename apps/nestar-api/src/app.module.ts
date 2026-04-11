@@ -11,13 +11,12 @@ import { T } from './libs/common';
 
 @Module({
 	imports: [
-		ConfigModule.forRoot(),
-		GraphQLModule.forRoot({
-			// GraphQL ni sozlaydi:
+		ConfigModule.forRoot(), // external module
+		GraphQLModule.forRoot({ // GraphQL ni sozlaydi:
 			driver: ApolloDriver, // GraphQL ishlashi uchun engine (runtime executor)
 			playground: true, // Brauzarda GraphQL so'rovlarini sinab ko'rish uchun UI ochiladi
 			uploads: false, // GraphQL orqali fayl yuklash o'chirilgan, fayl yuklash alohida maxsus sozlash talab qilganligi un
-			autoSchemaFile: true, // GraphQL schema ni qo'lda yozmasdan, code dan avtomatik yaratadi
+			autoSchemaFile: true, // GraphQL schemani playgroundda avtomatik yaratadi
 			formatError: (error: T) => { // GraphQL serverida sodir bolgan ixtiyoriy errorni biz yaratgan customized error sifatida olib beradi
 				const graphQLFormattedError = { // errorni formatlashtirish jarayoni: 2ta narsani jamlaydi: CODE & MESSAGE
 					code: error?.extensions.code,
@@ -28,10 +27,11 @@ import { T } from './libs/common';
 				return graphQLFormattedError; // server qotib qolmasligi un return qildik
 			},
 		}),
-		ComponentsModule, // Loyihaning Backendini asosiy mantig'i / business logic moduli(Service).
-		DatabaseModule, // MongoDB Databasega ulanish moduli.
+		ComponentsModule, // HTTP: Loyihaning Backendini asosiy mantig'i / business logic moduli(Service).
+		DatabaseModule, // TCP[doimiy bog'lanish]: MongoDB Databasega ulanish moduli.
 	],
 	controllers: [AppController], // [Rest API] HTTP so'rovlarni qabul qiladi (REST API uchun)
 	providers: [AppService, AppResolver], // [GraphQL API] Dependency Injection: ichidagilar boshqa joylarda inject qilib ishlatilaveradi
-})
-export class AppModule {} // JSni oddiy classi -> Module decorater orqali boyitilgan class
+}) // rest & graphql api ham http ustiga qurilganligi un bir-birini rad etmaydi 
+export class AppModule {} // JSni oddiy classi[state, constructor, method, extends] ->  Module decorater[@Module] orqali boyitilgan class
+// 

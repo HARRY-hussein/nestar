@@ -29,13 +29,13 @@ const MemberSchema = new Schema(
 
 		memberNick: {
 			type: String,
-			index: { unique: true, sparse: true },
-			required: true,
+			index: { unique: true, sparse: true }, // har bir userni nicki unique bolsin 
+			required: true, // kiritilishi shart qiymat
 		},
 
 		memberPassword: {
 			type: String,
-			select: false,
+			select: false, // bydefault qiymatini olib bermasin
 			required: true,
 		},
 
@@ -115,7 +115,7 @@ const MemberSchema = new Schema(
 			type: Date,
 		},
 	},
-	{ timestamps: true, collection: 'members' },
+	{ timestamps: true, collection: 'members' }, // created&updated default holda paydo bolishi un
 );
 
 export default MemberSchema;
