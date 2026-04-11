@@ -10,6 +10,8 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
+import { WithoutGuard } from '../auth/guards/without.guard';
+import { shapeIntoMongoObjectId } from '../../libs/config';
 
 @Resolver()
 export class MemberResolver {
@@ -58,10 +60,12 @@ export class MemberResolver {
 		return `Hi ${authMember.memberNick}! You are ${authMember.memberType} (memberId: ${authMember._id})`;
 	}
 
-	@Query(() => String)
-	public async getMember(): Promise<string> {
+	@UseGuards(WithoutGuard)
+	@Query(() => Member)
+	public async getMember(@Args('memberId') input: string, @AuthMember('_id') memberId: mongoose.ObjectId): Promise<Member> {
 		console.log('Query: getMember');
-		return this.memberService.getMember();
+		const targetId = shapeIntoMongoObjectId(input);
+		return this.memberService.getMember(memberId, targetId);
 	}
 
 	/** ADMIN **/
