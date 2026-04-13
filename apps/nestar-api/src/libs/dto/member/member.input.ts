@@ -1,9 +1,12 @@
-import { Field, InputType } from '@nestjs/graphql';
-import { IsNotEmpty, IsOptional, Length } from 'class-validator';
+import { Field, InputType, Int } from '@nestjs/graphql';
+import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
 import { MemberAuthType, MemberType } from '../../enums/member.enum';
+import { availableAgentSorts } from '../../config';
+import { Direction } from '../../enums/common.enum';
 
 @InputType() // Frontenddan kirib kelayotgan data
-export class MemberInput { // signup bolayotganda
+export class MemberInput {
+	// signup bolayotganda
 	@IsNotEmpty() // bo'sh bo'lmasligi/ kiritilishi kk bolgan data
 	@Length(3, 12)
 	@Field(() => String)
@@ -28,7 +31,8 @@ export class MemberInput { // signup bolayotganda
 }
 
 @InputType()
-export class LoginInput { // login bolayotganda
+export class LoginInput {
+	// login bolayotganda
 	@IsNotEmpty()
 	@Length(3, 12)
 	@Field(() => String)
@@ -38,4 +42,37 @@ export class LoginInput { // login bolayotganda
 	@Length(5, 12)
 	@Field(() => String)
 	memberPassword: string;
+}
+
+@InputType()
+export class AISearch {
+	@IsNotEmpty()
+	@Field(() => String, { nullable: true })
+	text?: string;
+}
+
+@InputType()
+export class AgentsInquiry {
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	page: number;
+
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	limit: number;
+
+	@IsOptional()
+	@IsIn(availableAgentSorts) // [config.ts] shu array ichidagi qiymatlarnigina
+	@Field(() => String, { nullable: true })
+	sort?: string;
+
+	@IsOptional()
+	@Field(() => Direction, { nullable: true })
+	direction?: Direction; // common.enum.ts
+
+	@IsNotEmpty()
+	@Field(() => AISearch)
+	search: AISearch;
 }
