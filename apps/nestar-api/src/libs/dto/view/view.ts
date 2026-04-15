@@ -7,17 +7,17 @@ export class View {
 	@Field(() => String)
 	_id: ObjectId; // Backendda Databasega aynan ObjectId korinishida yoziladi
 
-	@Field(() => ViewGroup)
+	@Field(() => ViewGroup) // Member, Article, Property
 	viewGroup: ViewGroup;
 
 	@Field(() => String)
-	viewRefId: ObjectId;
+	viewRefId: ObjectId; // ViewGroupdagi qaysi biri korilsa, o'shani idsi yoziladi
 
 	@Field(() => Int)
-	memberId: ObjectId;
+	memberId: ObjectId; // qaysi user korgan bolsa, oshani idsi yoziladi
 
 	@Field(() => Date)
-	createdAt: Date;
+	createdAt: Date; // qachon korilgan 
 
 	@Field(() => Date)
 	updatedAt: Date;

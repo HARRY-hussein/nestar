@@ -31,7 +31,7 @@ import { T } from './libs/common';
 		DatabaseModule, // TCP[doimiy bog'lanish]: MongoDB Databasega ulanish moduli.
 	],
 	controllers: [AppController], // [Rest API] HTTP so'rovlarni qabul qiladi (REST API uchun)
-	providers: [AppService, AppResolver], // [GraphQL API] Dependency Injection: ichidagilar boshqa joylarda inject qilib ishlatilaveradi
+	providers: [AppService, AppResolver], // [GraphQL API] Dependency Injection: AppModulega directly xizmat qiladi;  ichidagilar boshqa joylarda inject qilib ishlatilaveradi
 }) // rest & graphql api ham http ustiga qurilganligi un bir-birini rad etmaydi 
 export class AppModule {} // JSni oddiy classi[state, constructor, method, extends] ->  Module decorater[@Module] orqali boyitilgan class
 // 

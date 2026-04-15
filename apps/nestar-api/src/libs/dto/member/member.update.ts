@@ -4,10 +4,11 @@ import { MemberStatus, MemberType } from '../../enums/member.enum';
 import * as mongoose from 'mongoose';
 
 @InputType()
-export class MemberUpdate {
+export class MemberUpdate { // user FDdan turib quyidagilarni update qilishi mn
 	@IsNotEmpty()
-	@Field(() => String)
-	_id: mongoose.ObjectId;
+	@Field(() => String) // String korinishida kirib kelishi kk
+	_id: mongoose.ObjectId; 
+	// memberni updateni user ham, admin ham qiloladi, _idni berish esa aynan admin update qilish uchun memberni ushlab olish un
 
 	@IsOptional()
 	@Field(() => MemberType, { nullable: true })
@@ -18,7 +19,7 @@ export class MemberUpdate {
 	memberStatus?: MemberStatus;
 
 	@IsOptional()
-	@Field(() => String, { nullable: true }) // ❗ GraphQLda ham optional qilish uchun nullable: true qo‘shildi
+	@Field(() => String, { nullable: true }) // GraphQLda ham optional qilish uchun
 	memberPhone?: string;
 
 	@IsOptional()
@@ -46,7 +47,7 @@ export class MemberUpdate {
 
 	@IsOptional()
 	@Field(() => String, { nullable: true })
-	memberDesc?: string; // ❗ typo to‘g‘rilandi (memberDesx emas)
+	memberDesc?: string;
 
-	deleteAt?: Date;
+	deleteAt?: Date; // user ozini delete qilgandagi vaqti
 }

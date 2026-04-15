@@ -19,8 +19,8 @@ export class Member {
 	@Field(() => String, { nullable: true })
 	memberPhone?: string;
 
-	@Field(() => String)
-	memberNick: string;
+	@Field(() => String) // GraphQLga tegishli
+	memberNick: string; // Schemaga tegishli
 
 	memberPassword?: string; // Fieldga biriktirmadik, sababi GraphQL tashqariga chiqarib yubormasligi kk
 
@@ -85,13 +85,13 @@ export class Member {
 @ObjectType()
 export class TotalCounter {
 	@Field(() => Int, { nullable: true })
-	total?: number;
+	total: number;
 }
 
-@ObjectType()
+@ObjectType() // getAgentsda agent datalarini olayotganda kk boladi
 export class Members {
-	@Field(() => [Member])
-	list: Member[];
+	@Field(() => [Member]) // GaphQL sintaksisi
+	list: Member[]; // memberlardan iborat arraylarni qaytaradi
 
 	@Field(() => [TotalCounter], { nullable: true })
 	metaCounter: TotalCounter[];

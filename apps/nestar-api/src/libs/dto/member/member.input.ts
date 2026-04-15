@@ -9,8 +9,8 @@ export class MemberInput {
 	// signup bolayotganda
 	@IsNotEmpty() // bo'sh bo'lmasligi/ kiritilishi kk bolgan data
 	@Length(3, 12)
-	@Field(() => String)
-	memberNick: string;
+	@Field(() => String) // GraphQLga tegishli
+	memberNick: string; // Schemaga tegishli
 
 	@IsNotEmpty()
 	@Length(5, 12)
@@ -111,7 +111,7 @@ export class MembersInquiry {
 
 	@IsOptional()
 	@Field(() => Direction, { nullable: true })
-	direction?: Direction; // common.enum.ts
+	direction?: Direction; // common.enum.ts: ASC / DESC
 
 	@IsNotEmpty()
 	@Field(() => MISearch)

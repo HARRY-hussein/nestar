@@ -10,13 +10,14 @@ import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { ViewService } from '../view/view.service';
 import { T } from '../../libs/common';
 import { ViewGroup } from '../../libs/enums/view.enum';
+import { ViewInput } from '../../libs/dto/view/view.input';
 
 @Injectable()
 export class MemberService {
 	constructor(
 		@InjectModel('Member') private readonly memberModel: Model<Member>,
-		private authService: AuthService,
-		private viewService: ViewService,
+		private authService: AuthService, // memberModuleda import qilingan boshqa modulelardan instance olindi
+		private viewService: ViewService, // endi olingan instance bn ishlatish mn
 	) {}
 
 	public async signup(input: MemberInput): Promise<Member> {
@@ -65,36 +66,41 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 			.findOneAndUpdate(
 				{
 					_id: memberId,
-					memberStatus: MemberStatus.ACTIVE,
+					memberStatus: MemberStatus.ACTIVE, // faqat ACTIVE member datasini ozgartira oladi
 				},
-				input,
-				{ new: true },
+				input, // FDdan kelgan input
+				{ new: true }, // yangilangan datani qaytaradi
 			)
 			.exec();
-		if (!result) throw new InternalServerErrorException(Message.UPLOAD_FAILED);
+		if (!result) throw new InternalServerErrorException(Message.UPLOAD_FAILED); // yangilangan mantiq mavjud bolmasa
 
 		result.accessToken = await this.authService.createToken(result);
+		// accessTokenni expiry dateni yangilab oladi, FDda accessToken ichidagi member datasidan foydalanganimiz un payloaddagi eng songgi malumotlar kk boladi
 
 		return result;
 	}
 
 	public async getMember(memberId: ObjectId, targetId: ObjectId): Promise<Member> {
+		// [memberId] => tomosha qilayotgan user, [targetId] => malumotlari korilayotgan user
 		const search: T = {
-			_id: targetId,
+			_id: targetId, // tekshirilayotgan user idsi orqali malumotni DBdan qabul qiladi
 			memberStatus: {
-				$in: [MemberStatus.ACTIVE, MemberStatus.BLOCK],
+				$in: [MemberStatus.ACTIVE, MemberStatus.BLOCK], // DELETE bolgan user datasi DBda turganini userlar bilmasligi kk,
 			},
 		};
 
-		const targetMember = await this.memberModel.findOne(search).lean().exec();
-		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		// lean -> JS ojectga aylantirib beradi
+		const targetMember = await this.memberModel.findOne(search).lean().exec(); // const searchga kiritilgan data bn DBdan malumot qidiramiz
+		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND); // qidirilgan member malumotlari chiqmasa
 
 		if (memberId) {
-			const viewInput = { memberId: memberId, viewRefId: targetId, viewGroup: ViewGroup.MEMBER };
-			const newView = await this.viewService.recordView(viewInput);
+			// user datasini korish un req. qilgan member[faqat AuthMemberlar uchun], tekshirilayotgan userga + 1 view
+			const viewInput: ViewInput = { memberId: memberId, viewRefId: targetId, viewGroup: ViewGroup.MEMBER }; // boyitdik: kim tomosha qildi, kimni tomosha qildi, Group ichidan aynan MEMBER tomosha qilinyapti
+			const newView = await this.viewService.recordView(viewInput); // recordView ishga tushib yangi view hosil bolsa
 			if (newView) {
-				await this.memberModel.findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true }).exec();
-				targetMember.memberViews++;
+				// viewServiceda yangi view hosil bolsa
+				await this.memberModel.findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true }).exec(); // yuqoridagi searchni topsin, va memberViewsni +1ga increase qilsin va yangilangan datani qaytaradi
+				targetMember.memberViews++; // yuqoridagi targetMemberni viewsini +1ga kopaytiradi
 			}
 			// meLiked
 			// meFollowed
@@ -103,39 +109,41 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 	}
 
 	public async getAgents(memberId: ObjectId, input: AgentsInquiry): Promise<Members> {
-		const { text } = input.search;
-		const match: T = { memberType: MemberType.AGENT, memberStatus: MemberStatus.ACTIVE };
-		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+		const { text } = input.search; // destruction: search un yoziladigan textni qabul qildik
+		const match: T = { memberType: MemberType.AGENT, memberStatus: MemberStatus.ACTIVE }; // ACTIVE holatdagi AGENTlarnigina oladi
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC }; // aggregation un kk boladigan objectlar
+		// [member.input.tsda optional edi]bor bolsa, inputdagi sortdan ol, bolmasa bydefault createdAt; inputdagi directiondan ol, bolmasa DESC[yuqoridan pastga]
 
-		if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
+		if (text) match.memberNick = { $regex: new RegExp(text, 'i') }; // text bo'lsa, matchdagi memberNickdan qidiramiz
 		console.log('match', match);
 
-		const result = await this.memberModel
-			.aggregate([
-				{ $match: match },
-				{ $sort: sort },
+		const result = await this.memberModel // MongoDB aggregation pipeline: 
+			.aggregate([ 
+				{ $match: match }, // filterlash (faqat active + agentlar)
+				{ $sort: sort }, // natijani yuqoridagi tartib boyicha tartiblash
 				{
-					$facet: {
-						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }],
-						metaCounter: [{ $count: 'total' }],
-					}, // aggregationda bir nechta pipelinelarni querysini bir vaqtda foydalana olish un
+					$facet: { // pagination: aggregationda bir nechta pipelinelarni querysini bir vaqtda foydalana olish un
+						// skip => oldingi sahifalardagi elementlarni tashlab o‘tadi; limit => hozirgi sahifa uchun kerakli miqdorni oladi 
+						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }], // talab etilgan AGENTlar listi
+						metaCounter: [{ $count: 'total' }], // total nomi ostida jami AGENTlar soni
+					},
 				},
 			])
 			.exec();
 
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
-		return result[0];
+		return result[0]; // $facet natijasi array ichida keladi, shuning uchun birinchi element olinadi
 	}
 
 	public async getAllMembersByAdmin(input: MembersInquiry): Promise<Members> {
-		const { memberStatus, memberType, text } = input.search;
-		const match: T = { memberType: MemberType.AGENT, memberStatus: MemberStatus.ACTIVE };
-		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+		const { memberStatus, memberType, text } = input.search; // admin bergan filterlar (ixtiyoriy)
+		const match: T = { }; // adminga barcha memberTypelar olib beriladi
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC }; // inputdan kelgan qiymatlar, bolmasa (default: createdAt DESC)
 
-		if (memberStatus) match.MemberStatus = memberStatus;
-		if (memberType) match.MemberType = memberType;
-		if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
+		if (memberStatus) match.MemberStatus = memberStatus; // agar memberStatus bo'lsa, qiymatini matchdagi MemberStatusga biriktir
+		if (memberType) match.MemberType = memberType; // memberType qiymati bolsa matchdagi MemberTypega olib beradi
+		if (text) match.memberNick = { $regex: new RegExp(text, 'i') }; // text bolsa textni olib beradi; i => case insensitive
 		console.log('match', match);
 
 		const result = await this.memberModel
@@ -153,12 +161,12 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
-		return result[0];
+		return result[0]; // $facet natijasi array ichida keladi, shuning uchun birinchi element olinadi
 	}
 
 	public async updateMemberByAdmin(input: MemberUpdate): Promise<Member> {
-		const result: Member = await this.memberModel.findOneAndUpdate({_id: input._id}, input, {new: true}).exec();
-			if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		const result: Member = await this.memberModel.findOneAndUpdate({ _id: input._id }, input, { new: true }).exec(); // _id: qaysi member update bolyapti, qanday dataga yangilandi, updated version
+		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 		return result;
 	}
 }

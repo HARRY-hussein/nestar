@@ -8,15 +8,15 @@ import { ViewModule } from '../view/view.module';
 
 @Module({
 	imports: [
-		MongooseModule.forFeature([
+		MongooseModule.forFeature([ // DBni alohida ulab oldik va Database Connection mantig'i bn Schemani bog'ladik
 			{
-				name: 'Member',
-				schema: MemberSchema,
+				name: 'Member', // shu nom ostida yoziladi
+				schema: MemberSchema, // shu nom bn export qilingan schema Model
 			},
 		]),
-		AuthModule,
-		ViewModule,
+		AuthModule, // both => member moduleni qurishda yordam beradigan boshqa modulelarni chaqirib oldik 
+		ViewModule, // 
 	],
-	providers: [MemberResolver, MemberService],
+	providers: [MemberResolver, MemberService], // MemberModulega xizmat qiluvchi asosiy mantiqlar
 })
 export class MemberModule {}
