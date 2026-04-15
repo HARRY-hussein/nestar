@@ -18,5 +18,6 @@ import { ViewModule } from '../view/view.module';
 		ViewModule, // 
 	],
 	providers: [MemberResolver, MemberService], // MemberModulega xizmat qiluvchi asosiy mantiqlar
+	exports: [MemberService],
 })
 export class MemberModule {}

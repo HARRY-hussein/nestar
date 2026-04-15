@@ -28,6 +28,7 @@ export class MemberResolver {
 		console.log('input:', input);
 		return await this.memberService.signup(input); // call
 	}
+	
 	@Mutation(() => Member)
 	public async login(@Args('input') input: LoginInput): Promise<Member> {
 		// LoginInput DTOsi bn belgiladik

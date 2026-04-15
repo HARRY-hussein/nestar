@@ -8,7 +8,7 @@ import { Direction, Message } from '../../libs/enums/common.enum';
 import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { ViewService } from '../view/view.service';
-import { T } from '../../libs/common';
+import { StatisticModifier, T } from '../../libs/common';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { ViewInput } from '../../libs/dto/view/view.input';
 
@@ -117,13 +117,14 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 		if (text) match.memberNick = { $regex: new RegExp(text, 'i') }; // text bo'lsa, matchdagi memberNickdan qidiramiz
 		console.log('match', match);
 
-		const result = await this.memberModel // MongoDB aggregation pipeline: 
-			.aggregate([ 
+		const result = await this.memberModel // MongoDB aggregation pipeline:
+			.aggregate([
 				{ $match: match }, // filterlash (faqat active + agentlar)
 				{ $sort: sort }, // natijani yuqoridagi tartib boyicha tartiblash
 				{
-					$facet: { // pagination: aggregationda bir nechta pipelinelarni querysini bir vaqtda foydalana olish un
-						// skip => oldingi sahifalardagi elementlarni tashlab o‘tadi; limit => hozirgi sahifa uchun kerakli miqdorni oladi 
+					$facet: {
+						// pagination: aggregationda bir nechta pipelinelarni querysini bir vaqtda foydalana olish un
+						// skip => oldingi sahifalardagi elementlarni tashlab o‘tadi; limit => hozirgi sahifa uchun kerakli miqdorni oladi
 						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }], // talab etilgan AGENTlar listi
 						metaCounter: [{ $count: 'total' }], // total nomi ostida jami AGENTlar soni
 					},
@@ -138,7 +139,7 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 
 	public async getAllMembersByAdmin(input: MembersInquiry): Promise<Members> {
 		const { memberStatus, memberType, text } = input.search; // admin bergan filterlar (ixtiyoriy)
-		const match: T = { }; // adminga barcha memberTypelar olib beriladi
+		const match: T = {}; // adminga barcha memberTypelar olib beriladi
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC }; // inputdan kelgan qiymatlar, bolmasa (default: createdAt DESC)
 
 		if (memberStatus) match.MemberStatus = memberStatus; // agar memberStatus bo'lsa, qiymatini matchdagi MemberStatusga biriktir
@@ -168,5 +169,20 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 		const result: Member = await this.memberModel.findOneAndUpdate({ _id: input._id }, input, { new: true }).exec(); // _id: qaysi member update bolyapti, qanday dataga yangilandi, updated version
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 		return result;
+	}
+
+	public async memberStatsEditor(input: StatisticModifier): Promise<Member> {
+		console.log("Executed!");
+		
+		const { _id, targetKey, modifier } = input;
+		return await this.memberModel
+			.findOneAndUpdate(
+				_id,
+				{
+					$inc: { [targetKey]: modifier },
+				},
+				{ new: true },
+			)
+			.exec(); // dynamic, faqat memberProperty emas, modifier => +1 & -1
 	}
 }
