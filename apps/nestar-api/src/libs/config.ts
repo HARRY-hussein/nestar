@@ -9,8 +9,8 @@ import * as path from 'path';
 
 export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];
 export const getSerialForImage = (filename: string) => {
-	const ext = path.parse(filename).ext;
-	return uuidv4() + ext;
+	const ext = path.parse(filename).ext; // myphoto.jpg
+	return uuidv4() + ext; // jkhdcbauyvgbakgf.jpg
 };
 
 export const shapeIntoMongoObjectId = (target: any) => {

@@ -1,4 +1,4 @@
-import { BadRequestException, ConsoleLogger, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Member, Members } from '../../libs/dto/member/member';
@@ -8,7 +8,7 @@ import { Direction, Message } from '../../libs/enums/common.enum';
 import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { ViewService } from '../view/view.service';
-import { StatisticModifier, T } from '../../libs/common';
+import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { ViewInput } from '../../libs/dto/view/view.input';
 
@@ -74,8 +74,7 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 			.exec();
 		if (!result) throw new InternalServerErrorException(Message.UPLOAD_FAILED); // yangilangan mantiq mavjud bolmasa
 
-		result.accessToken = await this.authService.createToken(result);
-		// accessTokenni expiry dateni yangilab oladi, FDda accessToken ichidagi member datasidan foydalanganimiz un payloaddagi eng songgi malumotlar kk boladi
+		result.accessToken = await this.authService.createToken(result); // accessTokenni expiry dateni yangilab oladi, FDda accessToken ichidagi member datasidan foydalanganimiz un payloaddagi eng songgi malumotlar kk boladi
 
 		return result;
 	}
@@ -100,7 +99,7 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 			if (newView) {
 				// viewServiceda yangi view hosil bolsa
 				await this.memberModel.findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true }).exec(); // yuqoridagi searchni topsin, va memberViewsni +1ga increase qilsin va yangilangan datani qaytaradi
-				targetMember.memberViews++; // yuqoridagi targetMemberni viewsini +1ga kopaytiradi
+				targetMember.memberViews++; // API yangilashi un; yuqoridagi targetMemberni viewsini +1ga kopaytiradi
 			}
 			// meLiked
 			// meFollowed
@@ -166,23 +165,28 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 	}
 
 	public async updateMemberByAdmin(input: MemberUpdate): Promise<Member> {
+		// update/options
 		const result: Member = await this.memberModel.findOneAndUpdate({ _id: input._id }, input, { new: true }).exec(); // _id: qaysi member update bolyapti, qanday dataga yangilandi, updated version
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 		return result;
 	}
 
 	public async memberStatsEditor(input: StatisticModifier): Promise<Member> {
-		console.log("Executed!");
-		
-		const { _id, targetKey, modifier } = input;
+		console.log('Executed!');
+
+		const { _id, targetKey, modifier } = input; // Kirish ma'lumotlarini ajratib olish (Destructuring)
+		console.log('dfvhjkbdav', input);
+
 		return await this.memberModel
 			.findOneAndUpdate(
-				_id,
+				_id, // Qaysi ID li foydalanuvchini yangilaymiz?
 				{
+					// $inc - mavjud songa modifierni (+1 yoki -1) qo'shadi
+					// [targetKey] - dynamic kalit: ['memberProperties' & 'memberLikes']
 					$inc: { [targetKey]: modifier },
 				},
-				{ new: true },
+				{ new: true }, // Yangilangandan keyingi datani qaytaradi
 			)
-			.exec(); // dynamic, faqat memberProperty emas, modifier => +1 & -1
+			.exec(); // So'rovni bazaga yuborishni yakunlash
 	}
 }

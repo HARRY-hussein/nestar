@@ -11,7 +11,7 @@ import { ViewModule } from '../view/view.module';
 		MongooseModule.forFeature([ // DBni alohida ulab oldik va Database Connection mantig'i bn Schemani bog'ladik
 			{
 				name: 'Member', // shu nom ostida yoziladi
-				schema: MemberSchema, // shu nom bn export qilingan schema Model
+				schema: MemberSchema, // object -> model; shu nom bn export qilingan schema Model
 			},
 		]),
 		AuthModule, // both => member moduleni qurishda yordam beradigan boshqa modulelarni chaqirib oldik 

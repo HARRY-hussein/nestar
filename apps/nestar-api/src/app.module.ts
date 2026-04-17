@@ -7,18 +7,21 @@ import { ApolloDriver } from '@nestjs/apollo';
 import { AppResolver } from './app.resolver';
 import { ComponentsModule } from './components/components.module';
 import { DatabaseModule } from './database/database.module';
-import { T } from './libs/common';
+import { T } from './libs/types/common';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot(), // external module
-		GraphQLModule.forRoot({ // GraphQL ni sozlaydi:
+		GraphQLModule.forRoot({
+			// GraphQL ni sozlaydi:
 			driver: ApolloDriver, // GraphQL ishlashi uchun engine (runtime executor)
 			playground: true, // Brauzarda GraphQL so'rovlarini sinab ko'rish uchun UI ochiladi
 			uploads: false, // GraphQL orqali fayl yuklash o'chirilgan, fayl yuklash alohida maxsus sozlash talab qilganligi un
 			autoSchemaFile: true, // GraphQL schemani playgroundda avtomatik yaratadi
-			formatError: (error: T) => { // GraphQL serverida sodir bolgan ixtiyoriy errorni biz yaratgan customized error sifatida olib beradi
-				const graphQLFormattedError = { // errorni formatlashtirish jarayoni: 2ta narsani jamlaydi: CODE & MESSAGE
+			formatError: (error: T) => {
+				// GraphQL serverida sodir bolgan ixtiyoriy errorni biz yaratgan customized error sifatida olib beradi
+				const graphQLFormattedError = {
+					// errorni formatlashtirish jarayoni: 2ta narsani jamlaydi: CODE & MESSAGE
 					code: error?.extensions.code,
 					message:
 						error?.extensions?.exception?.response?.message || error?.extensions?.response?.message || error?.message, // 3 turdagi holat errodagi messageni qabul qiladi
@@ -32,6 +35,5 @@ import { T } from './libs/common';
 	],
 	controllers: [AppController], // [Rest API] HTTP so'rovlarni qabul qiladi (REST API uchun)
 	providers: [AppService, AppResolver], // [GraphQL API] Dependency Injection: AppModulega directly xizmat qiladi;  ichidagilar boshqa joylarda inject qilib ishlatilaveradi
-}) // rest & graphql api ham http ustiga qurilganligi un bir-birini rad etmaydi 
+}) // rest & graphql api ham http ustiga qurilganligi un bir-birini rad etmaydi
 export class AppModule {} // JSni oddiy classi[state, constructor, method, extends] ->  Module decorater[@Module] orqali boyitilgan class
-// 
