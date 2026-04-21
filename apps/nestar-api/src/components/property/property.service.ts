@@ -1,6 +1,9 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
+import { AuthService } from '../auth/auth.service';
+import { ViewService } from '../view/view.service';
+import { Direction, Message } from '../../libs/enums/common.enum';
 import {
 	AgentPropertiesInquiry,
 	AllPropertiesInquiry,
@@ -8,36 +11,35 @@ import {
 	PropertyInput,
 } from '../../libs/dto/property/property.input';
 import { Properties, Property } from '../../libs/dto/property/property';
-import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
-import { ViewService } from '../view/view.service';
 import { PropertyStatus } from '../../libs/enums/property.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
+import moment = require('moment');
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
-import moment from 'moment';
 import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 
 @Injectable()
 export class PropertyService {
+	lookupMember: any;
 	constructor(
-		@InjectModel('Property') private readonly propertyModel: Model<null>,
-		private memberService: MemberService, // PropertyModuleda import qilingan boshqa modulelardan instance olindi
+		@InjectModel('Property') private readonly propertyModel: Model<Property>,
+		private authService: AuthService,
 		private viewService: ViewService,
+		private memberService: MemberService,
 	) {}
-
 	public async createProperty(input: PropertyInput): Promise<Property> {
 		try {
-			const result = await this.propertyModel.create(input); // yangi propertyni bazada yaratish
-			// increase memberProperties
+			const result = await this.propertyModel.create(input);
+			// increase memberProperties +1
 			await this.memberService.memberStatsEditor({
-				_id: result.memberId, // Kimning statistikasi? (E'lon egasi)
-				targetKey: 'memberProperties', // Qaysi katakcha? (E'lonlar soni)
-				modifier: 1, // Qancha qo'shilsin? (+1 ta e'lon)
+				_id: result.memberId,
+				targetKey: 'memberProperties',
+				modifier: 1,
 			});
 			return result;
 		} catch (err) {
-			console.log('Error, Service.model:', err);
+			console.log('Error, Service.model:', (err as Error).message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}
@@ -71,7 +73,7 @@ export class PropertyService {
 		return await this.propertyModel
 			.findByIdAndUpdate(
 				_id,
-				{ $inc: { [targetKey]: modifier } },
+				{ $inc: { [targetKey]: modifier } }, // dynamic
 				{
 					new: true,
 				},
@@ -83,7 +85,7 @@ export class PropertyService {
 		let { propertyStatus, soldAt, deletedAt } = input;
 		const search: T = {
 			_id: input._id,
-			memberId: memberId,
+			memberId: memberId, // bu yerda biz faqat ozining property sini yangilash logicini qildik
 			propertyStatus: PropertyStatus.ACTIVE,
 		};
 
@@ -133,6 +135,7 @@ export class PropertyService {
 				},
 			])
 			.exec();
+
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		return result[0];
@@ -151,6 +154,7 @@ export class PropertyService {
 			options,
 			text,
 		} = input.search;
+
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
 		if (locationList) match.propertyLocation = { $in: locationList };
 		if (roomsList) match.propertyRooms = { $in: roomsList };
@@ -197,18 +201,26 @@ export class PropertyService {
 				},
 			])
 			.exec();
+
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		return result[0];
 	}
 
+	// ADMIN
+
 	public async getAllPropertiesByAdmin(input: AllPropertiesInquiry): Promise<Properties> {
 		const { propertyStatus, propertyLocationList } = input.search;
+
 		const match: T = {};
-		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+		const sort: T = {
+			[input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+		};
 
 		if (propertyStatus) match.propertyStatus = propertyStatus;
-		if (propertyLocationList) match.propertyLocation = { $in: propertyLocationList };
+		if (propertyLocationList) {
+			match.propertyLocation = { $in: propertyLocationList };
+		}
 
 		const result = await this.propertyModel
 			.aggregate([
@@ -218,40 +230,50 @@ export class PropertyService {
 					$facet: {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
-							{ $limit: input.limit }, // [property1, property2]
+							{ $limit: input.limit }, //[property1, property2]
 							lookupMember, // memberData: [memberDataValue]
-							{ $unwind: '$memberData' }, // memberData: memberDataValue
+							{ $unwind: '$memberData' }, //memberData: memberDataValue
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
 				},
 			])
 			.exec();
-		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		if (!result.length) {
+			throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		}
 
 		return result[0];
 	}
 
 	public async updatePropertyByAdmin(input: PropertyUpdate): Promise<Property> {
 		let { propertyStatus, soldAt, deletedAt } = input;
+
 		const search: T = {
 			_id: input._id,
 			propertyStatus: PropertyStatus.ACTIVE,
 		};
 
-		if (propertyStatus === PropertyStatus.SOLD) soldAt = moment().toDate();
-		else if (propertyStatus === PropertyStatus.DELETE) deletedAt = moment().toDate();
+		if (propertyStatus === PropertyStatus.SOLD) {
+			soldAt = moment().toDate();
+		} else if (propertyStatus === PropertyStatus.DELETE) {
+			deletedAt = moment().toDate();
+		}
 
 		const result = await this.propertyModel
 			.findOneAndUpdate(search, input, {
 				new: true,
 			})
 			.exec();
-		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+		if (!result) {
+			throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		}
 
 		if (soldAt || deletedAt) {
 			await this.memberService.memberStatsEditor({
-				_id: result.memberId,
+				_id: result.memberId, // sold yoki delete bolgan property egasining Id si
 				targetKey: 'memberProperties',
 				modifier: -1,
 			});

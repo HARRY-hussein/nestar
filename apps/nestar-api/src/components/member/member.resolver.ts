@@ -170,8 +170,8 @@ export class MemberResolver {
 				});
 				if (!result) throw new Error(Message.UPLOAD_FAILED);
 
-				uploadedImages[index] = url; // index orqali saqlash — tartib belgilash. index bolmasa, hajmi kichik rasm (hajmi kattadan keyin yuborilsa ham) tezroq yuklanadi va 1-o'ringa o'tib, tartibni buzadi
-			} catch (err) {
+				uploadedImages[index] = url;                    // index orqali saqlash — tartib belgilash. index bolmasa, hajmi kichik rasm (hajmi kattadan keyin yuborilsa ham) tezroq yuklanadi va 1-o'ringa o'tib, tartibni buzadi
+			} catch (err) {  
 				console.log('Error, file missing!');
 			}
 		});

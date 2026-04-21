@@ -49,7 +49,7 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 			throw new InternalServerErrorException(Message.NO_MEMBER_NICK); // No member nick dedik, delete emas, sababi ochirib chiqib ketsa ham databasedan o'chmaydi va buni aytib qoymaslik kk
 		} else if (response.memberStatus === MemberStatus.BLOCK) {
 			throw new InternalServerErrorException(Message.BLOCKED_USER);
-		}
+		} 
 
 		// Comparing passwords
 		const isMatch = await this.authService.comparePasswords(
