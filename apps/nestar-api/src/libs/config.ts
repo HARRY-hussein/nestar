@@ -7,20 +7,21 @@ export const availableOptions = ['propertyBarter', 'propertyRent'];
 export const availablePropertySorts = [
 	'createdAt',
 	'updatedAt',
-	'propertyLikes',
-	'propertyViews',
-	'propertyRank',
 	'propertyPrice',
+	'propertyViews',
+	'propertyLikes',
+	'propertyRank',
 ];
-
-// IMAGE CONFIGURATION (config.js)
+export const availableBoardArticleSorts = ['createdAt', 'updatedAt', 'articleLikes', 'articleViews'];
+export const availableCommentSorts = ['createdAt', 'updatedAt'];
+/**IMAGE CONFIGURATION (config.js)**/
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 
 export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];
 export const getSerialForImage = (filename: string) => {
-	const ext = path.parse(filename).ext; // myphoto.jpg
-	return uuidv4() + ext; // jkhdcbauyvgbakgf.jpg
+	const ext = path.parse(filename).ext;
+	return uuidv4() + ext;
 };
 
 export const shapeIntoMongoObjectId = (target: any) => {
