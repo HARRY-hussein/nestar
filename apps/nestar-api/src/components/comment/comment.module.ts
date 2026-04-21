@@ -7,7 +7,6 @@ import { MemberModule } from '../member/member.module';
 import { BoardArticleModule } from '../board-article/board-article.module';
 import { PropertyModule } from '../property/property.module';
 import CommentSchema from '../../schemas/Comment.model';
-import { ViewModule } from '../view/view.module';
 
 @Module({
 	imports: [
@@ -17,7 +16,6 @@ import { ViewModule } from '../view/view.module';
 				schema: CommentSchema,
 			},
 		]),
-		ViewModule,
 		AuthModule,
 		BoardArticleModule,
 		MemberModule,

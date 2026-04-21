@@ -178,7 +178,7 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 		console.log('dfvhjkbdav', input);
 
 		return await this.memberModel
-			.findOneAndUpdate(
+			.findByIdAndUpdate(
 				_id, // Qaysi ID li foydalanuvchini yangilaymiz?
 				{
 					// $inc - mavjud songa modifierni (+1 yoki -1) qo'shadi

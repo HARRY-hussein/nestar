@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BoardArticleService } from '../board-article/board-article.service';
-import { ViewService } from '../view/view.service';
 import { MemberService } from '../member/member.service';
 import { Model, ObjectId } from 'mongoose';
 import { CommentInput, CommentsInquiry } from '../../libs/dto/comment/comment.input';
@@ -9,7 +8,7 @@ import { Direction, Message } from '../../libs/enums/common.enum';
 import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
 import { PropertyService } from '../property/property.service';
 import { CommentUpdate } from '../../libs/dto/comment/comment.update';
-import { Comments } from '../../libs/dto/comment/comment';
+import { Comment, Comments } from '../../libs/dto/comment/comment';
 import { lookupMember } from '../../libs/config';
 import { T } from '../../libs/types/common';
 
@@ -18,7 +17,6 @@ export class CommentService {
 	constructor(
 		@InjectModel('Comment') private readonly commentModel: Model<Comment>,
 		private readonly memberService: MemberService,
-		private readonly viewService: ViewService,
 		private readonly boardArticleService: BoardArticleService,
 		private readonly propertyService: PropertyService,
 	) {}
