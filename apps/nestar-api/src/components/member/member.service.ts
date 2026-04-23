@@ -14,11 +14,13 @@ import { ViewInput } from '../../libs/dto/view/view.input';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
+import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
 
 @Injectable()
 export class MemberService {
 	constructor(
 		@InjectModel('Member') private readonly memberModel: Model<Member>,
+		@InjectModel('Follow') private readonly followModel: Model<Follower | Following>,
 		private authService: AuthService, // memberModuleda import qilingan boshqa modulelardan instance olindi
 		private viewService: ViewService, // endi olingan instance bn ishlatish mn
 		private likeService: LikeService,
@@ -105,22 +107,20 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 				await this.memberModel.findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true }).exec(); // yuqoridagi searchni topsin, va memberViewsni +1ga increase qilsin va yangilangan datani qaytaradi
 				targetMember.memberViews++; // API yangilashi un; yuqoridagi targetMemberni viewsini +1ga kopaytiradi
 			}
+
 			// meLiked
 			const likeInput = { memberId: memberId, likeRefId: targetId, likeGroup: LikeGroup.MEMBER };
 			targetMember.meLiked = await this.likeService.checkLikeExistence(likeInput);
-	 //meFollowed
-                 targetMember.meFollowed = await this.checkSubscription(memberId, targetId) as any;
-            }
-        return targetMember;
-    }
-    private async checkSubscription(followerId: ObjectId, followingId: ObjectId): Promise<MeFollowed[]> {
-    const result = await this.followModel.findOne({ followingId: followingId, followerId: followerId }).exec();
-    return result ? [{ followerId: followerId, followingId: followingId, myFollowing: true }] : [];
+			//meFollowed
+			targetMember.meFollowed = (await this.checkSubscription(memberId, targetId)) as any;
+		}
+		return targetMember;
+	}
+	private async checkSubscription(followerId: ObjectId, followingId: ObjectId): Promise<MeFollowed[]> {
+		const result = await this.followModel.findOne({ followingId: followingId, followerId: followerId }).exec();
+		return result ? [{ followerId: followerId, followingId: followingId, myFollowing: true }] : [];
 	}
 
-
-
-	
 	public async getAgents(memberId: ObjectId, input: AgentsInquiry): Promise<Members> {
 		const { text } = input.search; // destruction: search un yoziladigan textni qabul qildik
 		const match: T = { memberType: MemberType.AGENT, memberStatus: MemberStatus.ACTIVE }; // ACTIVE holatdagi AGENTlarnigina oladi

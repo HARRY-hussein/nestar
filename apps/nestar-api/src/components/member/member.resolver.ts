@@ -17,7 +17,6 @@ import { createWriteStream } from 'fs';
 import { Message } from '../../libs/enums/common.enum';
 import type { ObjectId } from 'mongoose';
 
-
 @Resolver()
 export class MemberResolver {
 	constructor(private readonly memberService: MemberService) {} // DI
@@ -80,10 +79,7 @@ export class MemberResolver {
 
 	@UseGuards(WithoutGuard)
 	@Query(() => Members)
-	public async getAgents(
-		@Args('input') input: AgentsInquiry,
-		@AuthMember('_id') memberId: ObjectId,
-	): Promise<Members> {
+	public async getAgents(@Args('input') input: AgentsInquiry, @AuthMember('_id') memberId: ObjectId): Promise<Members> {
 		console.log('Query: getAgents');
 		return await this.memberService.getAgents(memberId, input); // kim AGENTlarni koryapti &
 	}
