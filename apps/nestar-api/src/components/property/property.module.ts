@@ -6,6 +6,7 @@ import PropertySchema from '../../schemas/Property.model';
 import { AuthModule } from '../auth/auth.module';
 import { ViewModule } from '../view/view.module';
 import { MemberModule } from '../member/member.module';
+import { LikeModule } from '../like/like.module';
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { MemberModule } from '../member/member.module';
 		AuthModule, // both => member moduleni qurishda yordam beradigan boshqa modulelarni chaqirib oldik
 		ViewModule, //
 		MemberModule,
+		LikeModule,
 	],
 	providers: [PropertyService, PropertyResolver], // MemberModulega xizmat qiluvchi asosiy mantiqlar
 	exports: [PropertyService],
