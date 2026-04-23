@@ -5,7 +5,7 @@ import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry } from '../../li
 import { Member, Members } from '../../libs/dto/member/member';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
-import * as mongoose from 'mongoose';
+
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -15,6 +15,7 @@ import { getSerialForImage, shapeIntoMongoObjectId, validMimeTypes } from '../..
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { createWriteStream } from 'fs';
 import { Message } from '../../libs/enums/common.enum';
+import type { ObjectId } from 'mongoose';
 
 
 @Resolver()
@@ -58,7 +59,7 @@ export class MemberResolver {
 	@Mutation(() => Member) // ObjectTypedagi datani qaytarish kk
 	public async updateMember(
 		@Args('input') input: MemberUpdate, // memberupdate typeni argument decorator orqali qabul qildik
-		@AuthMember('_id') memberId: mongoose.ObjectId,
+		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Member> {
 		console.log('Mutation: updateMember');
 		delete input._id; // memberupdate typeda _id ham kirib kelsin deyilgandi, o'shani ochirdik, sababi _idni yuqorida AuthMember orqali allaqachon olib bolganmiz
@@ -70,7 +71,7 @@ export class MemberResolver {
 	@Query(() => Member) // qaytarayotgan natija Member korinishida
 	public async getMember(
 		@Args('memberId') input: string, // FDdan keladi: boshqa tekshirilayotgan user
-		@AuthMember('_id') memberId: mongoose.ObjectId, // authMember orqali kiradi va aynan qaysi user ko'rmoqchi; statistika: tekshirilayotgan userni aynan AuthMemberdan otgan user bir martta tomosha qildi
+		@AuthMember('_id') memberId: ObjectId, // authMember orqali kiradi va aynan qaysi user ko'rmoqchi; statistika: tekshirilayotgan userni aynan AuthMemberdan otgan user bir martta tomosha qildi
 	): Promise<Member> {
 		console.log('Query: getMember');
 		const targetId = shapeIntoMongoObjectId(input); // FDdan barcha member data keladi, lekin id=string boladi va ObjectIdga o'girildi
@@ -81,14 +82,24 @@ export class MemberResolver {
 	@Query(() => Members)
 	public async getAgents(
 		@Args('input') input: AgentsInquiry,
-		@AuthMember('_id') memberId: mongoose.ObjectId,
+		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Members> {
 		console.log('Query: getAgents');
 		return await this.memberService.getAgents(memberId, input); // kim AGENTlarni koryapti &
 	}
 
-	/** ADMIN **/
+	@UseGuards(AuthGuard)
+	@Mutation(() => Member)
+	public async likeTargetMember(
+		@Args('memberId') input: string,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Member> {
+		console.log('Mutation: likeTargetMember');
+		const likeRefId = shapeIntoMongoObjectId(input);
+		return await this.memberService.likeTargetMember(memberId, likeRefId);
+	}
 
+	/** ADMIN **/
 	// Authorization: ADMIN
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
@@ -127,7 +138,8 @@ export class MemberResolver {
 		const stream = createReadStream(); // faylni oladi-yu, hammasini birdaniga emas bo'laklab beradi [10MB => 64kb - 64kb..]
 
 		// Rasmni diskka (physical storage) yozish jarayoni
-		const result = await new Promise((resolve, reject) => { // Fayl to'liq yozib bo'linmaguncha kutishni ta'minlaydi:
+		const result = await new Promise((resolve, reject) => {
+			// Fayl to'liq yozib bo'linmaguncha kutishni ta'minlaydi:
 			stream
 				.pipe(createWriteStream(url)) // O'qilayotgan faylni belgilangan URL'ga yozishni boshlash
 				.on('finish', async () => resolve(true)) // Yuklash muvaffaqiyatli yakunlansa true qaytarish
@@ -170,8 +182,8 @@ export class MemberResolver {
 				});
 				if (!result) throw new Error(Message.UPLOAD_FAILED);
 
-				uploadedImages[index] = url;                    // index orqali saqlash — tartib belgilash. index bolmasa, hajmi kichik rasm (hajmi kattadan keyin yuborilsa ham) tezroq yuklanadi va 1-o'ringa o'tib, tartibni buzadi
-			} catch (err) {  
+				uploadedImages[index] = url; // index orqali saqlash — tartib belgilash. index bolmasa, hajmi kichik rasm (hajmi kattadan keyin yuborilsa ham) tezroq yuklanadi va 1-o'ringa o'tib, tartibni buzadi
+			} catch (err) {
 				console.log('Error, file missing!');
 			}
 		});
