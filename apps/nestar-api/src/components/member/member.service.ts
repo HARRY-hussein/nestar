@@ -108,11 +108,19 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 			// meLiked
 			const likeInput = { memberId: memberId, likeRefId: targetId, likeGroup: LikeGroup.MEMBER };
 			targetMember.meLiked = await this.likeService.checkLikeExistence(likeInput);
-			// meFollowed
-		}
-		return targetMember;
+	 //meFollowed
+                 targetMember.meFollowed = await this.checkSubscription(memberId, targetId) as any;
+            }
+        return targetMember;
+    }
+    private async checkSubscription(followerId: ObjectId, followingId: ObjectId): Promise<MeFollowed[]> {
+    const result = await this.followModel.findOne({ followingId: followingId, followerId: followerId }).exec();
+    return result ? [{ followerId: followerId, followingId: followingId, myFollowing: true }] : [];
 	}
 
+
+
+	
 	public async getAgents(memberId: ObjectId, input: AgentsInquiry): Promise<Members> {
 		const { text } = input.search; // destruction: search un yoziladigan textni qabul qildik
 		const match: T = { memberType: MemberType.AGENT, memberStatus: MemberStatus.ACTIVE }; // ACTIVE holatdagi AGENTlarnigina oladi
