@@ -37,3 +37,21 @@ export const lookupMember = {
 		as: 'memberData',
 	},
 };
+
+export const lookupFollowingData = {
+	$lookup: {
+		from: 'members',
+		localField: 'followingId',
+		foreignField: '_id',
+		as: 'followingData',
+	},
+};
+
+export const lookupFollowerData = {
+	$lookup: {
+		from: 'members', // [2] members collectiondan
+		localField: 'followerId', // [1] followingId orqali 
+		foreignField: '_id', // [3] _idga teng qiymatini izlab topadi 
+		as: 'followerData', // [4] va followerData nomi ostida yozadi
+	},
+};
