@@ -3,7 +3,7 @@ import { LikeGroup } from '../../enums/like.enum';
 import type { ObjectId } from 'mongoose';
 
 @ObjectType()
-export class MeLiked {
+export class MeLiked { // like bosgan user datasi
 	@Field(() => String)
 	memberId: ObjectId;
 
@@ -15,7 +15,7 @@ export class MeLiked {
 }
 
 @ObjectType() 
-export class Like { // likelar aynan qayerda/kim tomonidan hosil boldi 
+export class Like { // likelar aynan qayerda/kim tomonidan hosil bolganini FDga yuboradi
 	@Field(() => String)
 	_id: ObjectId;
 

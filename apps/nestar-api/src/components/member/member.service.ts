@@ -106,6 +106,8 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 				targetMember.memberViews++; // API yangilashi un; yuqoridagi targetMemberni viewsini +1ga kopaytiradi
 			}
 			// meLiked
+			const likeInput = { memberId: memberId, likeRefId: targetId, likeGroup: LikeGroup.MEMBER };
+			targetMember.meLiked = await this.likeService.checkLikeExistence(likeInput);
 			// meFollowed
 		}
 		return targetMember;
