@@ -175,7 +175,6 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 		console.log('Executed!');
 
 		const { _id, targetKey, modifier } = input; // Kirish ma'lumotlarini ajratib olish (Destructuring)
-		console.log('dfvhjkbdav', input);
 
 		return await this.memberModel
 			.findByIdAndUpdate(
