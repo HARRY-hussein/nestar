@@ -15,6 +15,7 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
+import { lookupAuthMemberLiked } from '../../libs/config';
 
 @Injectable()
 export class MemberService {
@@ -138,7 +139,9 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 					$facet: {
 						// pagination: aggregationda bir nechta pipelinelarni querysini bir vaqtda foydalana olish un
 						// skip => oldingi sahifalardagi elementlarni tashlab o‘tadi; limit => hozirgi sahifa uchun kerakli miqdorni oladi
-						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }], // talab etilgan AGENTlar listi
+						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }, 
+							lookupAuthMemberLiked(memberId),
+						], 
 						metaCounter: [{ $count: 'total' }], // total nomi ostida jami AGENTlar soni
 					},
 				},
