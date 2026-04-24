@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
+import { Model, ObjectId, Schema } from 'mongoose';
 import { Like, MeLiked } from '../../libs/dto/like/like';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { T } from '../../libs/types/common';
@@ -12,6 +12,9 @@ import { lookupFavorite } from '../../libs/config';
 
 @Injectable()
 export class LikeService {
+	getVisitedProperties(memberId: Schema.Types.ObjectId, input: OrdinaryInquiry): Properties | PromiseLike<Properties> {
+		throw new Error('Method not implemented.');
+	}
 	constructor(@InjectModel('Like') private readonly likeModel: Model<Like>) {}
 
 	public async toggleLike(input: LikeInput): Promise<number> {
