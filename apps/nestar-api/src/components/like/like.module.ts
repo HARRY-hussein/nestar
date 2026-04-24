@@ -15,8 +15,7 @@ import LikeSchema from '../../schemas/Like.model';
 		// AuthModule, // both => member moduleni qurishda yordam beradigan boshqa modulelarni chaqirib oldik
 		// ViewModule, //
 	],
-	providers: [LikeService], // LikeModulega xizmat qiluvchi asosiy mantiqlar
+	providers: [LikeService], // LikeModule -> boshqa modulelarni mantig'i uchun xizmat qiladi
 	exports: [LikeService],
 })
 export class LikeModule {}
-// boshqa modulelarni mantig'i uchun xizmat qiladi
