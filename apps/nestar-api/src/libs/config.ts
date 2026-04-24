@@ -98,7 +98,8 @@ export const lookupAuthMemberFollowed = (input: lookupAuthMemberFollowed) => {
 };
 
 // MongoDbga daxldor mantiqlar
-export const lookupMember = { // singular comparison
+export const lookupMember = {
+	// singular comparison
 	$lookup: {
 		from: 'members',
 		localField: 'memberId',
@@ -119,8 +120,17 @@ export const lookupFollowingData = {
 export const lookupFollowerData = {
 	$lookup: {
 		from: 'members', // [2] members collectiondan
-		localField: 'followerId', // [1] followingId orqali 
-		foreignField: '_id', // [3] _idga teng qiymatini izlab topadi 
+		localField: 'followerId', // [1] followingId orqali
+		foreignField: '_id', // [3] _idga teng qiymatini izlab topadi
 		as: 'followerData', // [4] va followerData nomi ostida yozadi
+	},
+};
+
+export const lookupFavorite = {
+	$lookup: {
+		from: 'members',
+		localField: 'favoriteProperty.memberId',
+		foreignField: '_id',
+		as: 'favoriteProperty.memberData',
 	},
 };
