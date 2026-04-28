@@ -13,8 +13,7 @@ import { lookupVisit } from '../../libs/config';
 export class ViewService {
 	constructor(@InjectModel('View') private readonly viewModel: Model<View>) {} // viewModuleda import qilingan schemani inject qilib ishlatdik va instance oldik
 
-	public async recordView(input: ViewInput): Promise<View | null> {
-		// view hosil bolsa | hosil bolmasa
+	public async recordView(input: ViewInput): Promise<View | null> { // view hosil bolsa | hosil bolmasa
 		const viewExist = await this.checkViewExistence(input); // checkViewExistencedan kelayotgan inputni joyladik
 		if (!viewExist) {
 			console.log('- New View insert -');
@@ -28,40 +27,42 @@ export class ViewService {
 		return await this.viewModel.findOne(search).exec(); // search ichidagi qiymatlarini joyladik
 	}
 
-	public async getVisitedProperties(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
-		const { page, limit } = input;
-		const match: T = { viewGroup: ViewGroup.PROPERTY, memberId: memberId };
+	public async getVisitedProperties(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> { // Metod boshlanishi: ko'rilgan mulklarni qaytaradi
+		const { page, limit } = input; // Inputdan sahifa raqami va miqdorni ajratib olish
+		const match: T = { viewGroup: ViewGroup.PROPERTY, memberId: memberId }; // Faqat 'PROPERTY' turidagi va foydalanuvchiga tegishli ko'rishlarni filtrlash
 
-		const data: T = await this.viewModel
+		const data: T = await this.viewModel // 'views' kolleksiyasida qidiruvni boshlash
 			.aggregate([
-				{ $match: match },
-				{ $sort: { updatedAt: -1 } },
+				// Aggregation pipeline (murakkab so'rov) boshlanishi
+				{ $match: match }, // Shartga mos ko'rishlarni ajratib olish
+				{ $sort: { updatedAt: -1 } }, // Oxirgi ko'rilganlarni vaqt bo'yicha yuqoriga qo'yish
 				{
-					$lookup: {
-						from: 'properties',
-						localField: 'viewRefId',
-						foreignField: '_id',
-						as: 'visitedProperty',
+					$lookup: { // 'properties' kolleksiyasi bilan bog'lanish
+						from: 'properties', // [2] 'properties' collectiondagi
+						localField: 'viewRefId', // [1] 'viewRefId' dagi valueni olib
+						foreignField: '_id', // [3] aynan '_id' si 'viewRefId'bilan bir xil bo'lganini topgach
+						as: 'visitedProperty', // [4] Natijani 'visitedProperty' nomi ostida saqlash
 					},
 				},
-				{ $unwind: '$visitedProperty' },
+				{ $unwind: '$visitedProperty' }, // Lookupdan kelgan arrayni objectga aylantirish
 				{
-					$facet: {
-						list: [
-							{ $skip: (page - 1) * limit },
-							{ $limit: limit },
-							lookupVisit,
-							{ $unwind: '$visitedProperty.memberData' },
+					$facet: { // Bittada ikki xil aggregation:
+						list: [ // 1-operatsiya: Ma'lumotlar ro'yxatini shakllantirish
+							{ $skip: (page - 1) * limit }, // Avvalgi sahifalardagi ma'lumotlarni tashlab o'tish
+							{ $limit: limit }, // Hozirgi sahifa uchun belgilangan miqdorni olish
+							lookupVisit, // Property Agentining ma'lumotlarini olib kelish (external pipeline)
+							{ $unwind: '$visitedProperty.memberData' }, // Mulk egasi ma'lumotini massivdan obyektga o'girish
 						],
-						metaCounter: [{ $count: 'total' }],
+						metaCounter: [{ $count: 'total' }], // 2-operatsiya: Jami topilgan hujjatlar sonini hisoblash
 					},
 				},
 			])
-			.exec();
+			.exec(); // So'rovni ijro etish
 
-		const result: Properties = { list: [], metaCounter: data[0].metaCounter };
-		result.list = data[0].list.map((ele) => ele.visitedProperty);
-
-		return result;
+		const result: Properties = { list: [], metaCounter: data[0].metaCounter }; // Yakuniy natija strukturasini yaratish
+		result.list = data[0].list.map((ele) => ele.visitedProperty); // Murakkab strukturadan faqat mulk ma'lumotlarini ajratib olish
+        // console.log("hhhhhhhhhhhhhhhhhhh:", result.list);
+		
+		return result; // Tayyor ma'lumotni qaytarish
 	}
 }

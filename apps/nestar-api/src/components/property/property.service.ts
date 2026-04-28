@@ -34,8 +34,7 @@ export class PropertyService {
 	) {}
 	public async createProperty(input: PropertyInput): Promise<Property> {
 		try {
-			const result = await this.propertyModel.create(input);
-			// increase memberProperties +1
+			const result = await this.propertyModel.create(input); // increase memberProperties +1
 			await this.memberService.memberStatsEditor({
 				_id: result.memberId,
 				targetKey: 'memberProperties',

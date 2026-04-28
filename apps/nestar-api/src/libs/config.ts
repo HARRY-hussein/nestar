@@ -31,7 +31,7 @@ export const shapeIntoMongoObjectId = (target: any) => {
 };
 
 export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$_id') => {
-	return {
+	return { // $ signsiz: "69dabydcgbew3c3" == "followingId"
 		$lookup: {
 			from: 'likes',
 			let: {
@@ -41,15 +41,15 @@ export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$_id')
 			},
 			pipeline: [
 				{
-					$match: {
+					$match: { // filter
 						$expr: {
 							$and: [{ $eq: ['$likeRefId', '$$localLikeRefId'] }, { $eq: ['$memberId', '$$localMemberId'] }],
 						},
 					},
 				},
 				{
-					$project: {
-						_id: 0,
+					$project: { // 
+						_id: 1,
 						memberId: 1,
 						likeRefId: 1,
 						myFavorite: '$$localMyFavorite',
@@ -65,6 +65,7 @@ interface lookupAuthMemberFollowed {
 	followerId: T;
 	followingId: string;
 }
+
 export const lookupAuthMemberFollowed = (input: lookupAuthMemberFollowed) => {
 	const { followerId, followingId } = input;
 	return {
@@ -98,8 +99,7 @@ export const lookupAuthMemberFollowed = (input: lookupAuthMemberFollowed) => {
 };
 
 // MongoDbga daxldor mantiqlar
-export const lookupMember = {
-	// singular comparison
+export const lookupMember = { // singular comparison
 	$lookup: {
 		from: 'members',
 		localField: 'memberId',
@@ -137,9 +137,9 @@ export const lookupFavorite = {
 
 export const lookupVisit = {
 	$lookup: {
-		from: 'members',
-		localField: 'visitedProperty.memberId',
-		foreignField: '_id',
-		as: 'visitedProperty.memberData',
+		from: 'members', // Members (foydalanuvchilar) jadvaliga bor
+		localField: 'visitedProperty.memberId', // Uyning ichidagi egasining ID-sini ol
+		foreignField: '_id', // Uni Members jadvalidan qidir
+		as: 'visitedProperty.memberData', // Topgan ma'lumotingni 'memberData' deb nomla
 	},
 };

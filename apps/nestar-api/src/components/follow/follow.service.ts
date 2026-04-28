@@ -85,7 +85,7 @@ export class FollowService {
 								followerId: memberId,
 								followingId: '$followingId',
 							}),
-							lookupFollowingData,
+							lookupFollowingData, // Agentning o'zi haqidagi to'liq ma'lumotlarni (ismi, rasmi) olib keladi.
 							{ $unwind: '$followingData' },
 						],
 						metaCounter: [{ $count: 'total' }],

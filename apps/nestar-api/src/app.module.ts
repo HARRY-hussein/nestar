@@ -8,6 +8,7 @@ import { AppResolver } from './app.resolver';
 import { ComponentsModule } from './components/components.module';
 import { DatabaseModule } from './database/database.module';
 import { T } from './libs/types/common';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
 	imports: [
@@ -31,7 +32,7 @@ import { T } from './libs/types/common';
 			},
 		}),
 		ComponentsModule, // HTTP: Loyihaning Backendini asosiy mantig'i / business logic moduli(Service).
-		DatabaseModule, // TCP[doimiy bog'lanish]: MongoDB Databasega ulanish moduli.
+		DatabaseModule, SocketModule, // TCP[doimiy bog'lanish]: MongoDB Databasega ulanish moduli.
 	],
 	controllers: [AppController], // [Rest API] HTTP so'rovlarni qabul qiladi (REST API uchun)
 	providers: [AppService, AppResolver], // [GraphQL API] Dependency Injection: AppModulega directly xizmat qiladi;  ichidagilar boshqa joylarda inject qilib ishlatilaveradi
