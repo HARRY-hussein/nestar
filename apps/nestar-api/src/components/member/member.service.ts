@@ -79,7 +79,7 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 				{ new: true }, // yangilangan datani qaytaradi
 			)
 			.exec();
-		if (!result) throw new InternalServerErrorException(Message.UPLOAD_FAILED); // yangilangan mantiq mavjud bolmasa
+		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED); // yangilangan mantiq mavjud bolmasa
 
 		result.accessToken = await this.authService.createToken(result); // accessTokenni expiry dateni yangilab oladi, FDda accessToken ichidagi member datasidan foydalanganimiz un payloaddagi eng songgi malumotlar kk boladi
 
@@ -176,8 +176,8 @@ directly clientga yuborilmasligi kkligi un, yani shunday maxsus holda try/catchg
 		const match: T = {}; // adminga barcha memberTypelar olib beriladi
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC }; // inputdan kelgan qiymatlar, bolmasa (default: createdAt DESC)
 
-		if (memberStatus) match.MemberStatus = memberStatus; // agar memberStatus bo'lsa, qiymatini matchdagi MemberStatusga biriktir
-		if (memberType) match.MemberType = memberType; // memberType qiymati bolsa matchdagi MemberTypega olib beradi
+		if (memberStatus) match.memberStatus = memberStatus; // agar memberStatus bo'lsa, qiymatini matchdagi MemberStatusga biriktir
+		if (memberType) match.memberType = memberType; // memberType qiymati bolsa matchdagi MemberTypega olib beradi
 		if (text) match.memberNick = { $regex: new RegExp(text, 'i') }; // text bolsa textni olib beradi; i => case insensitive
 		console.log('match', match);
 

@@ -49,5 +49,5 @@ export class MemberUpdate { // user FDdan turib quyidagilarni update qilishi mn
 	@Field(() => String, { nullable: true })
 	memberDesc?: string;
 
-	deleteAt?: Date; // user ozini delete qilgandagi vaqti
+	deletedAt?: Date; // user ozini delete qilgandagi vaqti
 }
